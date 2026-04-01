@@ -1,6 +1,7 @@
 @page "{id:long}"
 @model MiukaFotoRazor.Pages.ArticleModel
 @using System.Text.RegularExpressions
+@using MiukaFotoRazor.Models.ViewModels
 @{
     // Page title fallback
     ViewData["Title"] = Model.Article?.CAPTION ?? "Article";
@@ -123,7 +124,12 @@
                   @if (Model.IsRoot)
                   {
                     <div class="mt-0 mb-5">
-                      <partial name="_ParagraphToolbar" model="p.ID" />
+                      <partial name="_ParagraphToolbar"
+                        model="new ParagraphToolbarModel
+                        {
+                            ParagraphId = p.ID,
+                            ArticleId = Model.ID
+                        }" />
                     </div>
                   }
 

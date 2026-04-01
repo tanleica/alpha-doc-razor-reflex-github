@@ -1,39 +1,41 @@
-@model long
+@model MiukaFotoRazor.Models.ViewModels.ParagraphToolbarModel
 
 <div class="paragraph-toolbar d-flex gap-2 mt-2 bg-color">
     <!-- Add at end -->
-    <button class="btn btn-icon bg-color" title="Add to bottom"
-            data-paragraph-id="@Model">
-        <i data-feather="plus" class="bg-color"></i>
-    </button>
+    <a class="btn btn-icon bg-color"
+       title="Add to bottom"
+       href="/Paragraph/Create?articleId=@Model.ArticleId">
+        <i data-feather="plus"></i>
+    </a>    
 
     <!-- Insert after -->
-    <button class="btn btn-icon bg-color" title="Insert after"
-            data-paragraph-id="@Model">
-        <i data-feather="corner-right-down" class="bg-color"></i>
-    </button>
+    <a class="btn btn-icon bg-color"
+    title="Insert after"
+    href="/Paragraph/Create?articleId=@Model.ArticleId&afterId=@Model.ParagraphId">
+        <i data-feather="corner-right-down"></i>
+    </a>
 
     <!-- Edit -->
     <button class="btn btn-icon bg-color" title="Edit"
-            data-paragraph-id="@Model">
+            data-paragraph-id="@Model.ParagraphId">
         <i data-feather="edit-2" class="bg-color"></i>
     </button>
 
     <!-- Move Up -->
     <button class="btn btn-icon bg-color" title="Move up"
-            data-paragraph-id="@Model">
+            data-paragraph-id="@Model.ParagraphId">
         <i data-feather="arrow-up" class="bg-color"></i>
     </button>
 
     <!-- Move Down -->
     <button class="btn btn-icon bg-color" title="Move down"
-            data-paragraph-id="@Model">
+            data-paragraph-id="@Model.ParagraphId">
         <i data-feather="arrow-down" class="bg-color"></i>
     </button>
 
     <!-- Delete -->
     <button class="btn btn-icon bg-color text-danger" title="Delete"
-            data-paragraph-id="@Model">
+            data-paragraph-id="@Model.ParagraphId">
         <i data-feather="trash-2"></i>
     </button>
 </div>

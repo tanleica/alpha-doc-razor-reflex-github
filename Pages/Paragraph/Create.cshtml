@@ -1,0 +1,21 @@
+@page
+@model MiukaFotoRazor.Pages.Paragraph.CreateModel
+
+<h3>Add Paragraph</h3>
+
+<form method="post">
+    <input type="hidden" asp-for="ArticleId" />
+
+    <div>
+        <label>Body</label>
+        <textarea class="form-control" asp-for="Body" style="width:100%; height:150px;"></textarea>
+    </div>
+
+    <div class="mt-2">
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a class="btn btn-secondary"
+        href="/Article/@Model.ArticleId">
+        Cancel
+        </a>
+    </div>
+</form>
