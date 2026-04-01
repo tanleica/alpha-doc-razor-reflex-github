@@ -34,8 +34,11 @@
     </button>
 
     <!-- Delete -->
-    <button class="btn btn-icon bg-color text-danger" title="Delete"
-            data-paragraph-id="@Model.ParagraphId">
+    <a class="btn btn-icon bg-color text-danger"
+        title="Delete"
+        asp-page="/Paragraph/DeleteConfirm"
+        asp-route-id="@Model.ParagraphId"
+        asp-route-articleId="@Model.ArticleId">
         <i data-feather="trash-2"></i>
-    </button>
+    </a>
 </div>
