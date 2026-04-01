@@ -1,0 +1,217 @@
+@page "{id:long}"
+@model MiukaFotoRazor.Pages.ArticleModel
+@using System.Text.RegularExpressions
+@{
+    // Page title fallback
+    ViewData["Title"] = Model.Article?.CAPTION ?? "Article";
+}
+
+@functions {
+    private static string DecodeBody(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return string.Empty;
+        var clean = raw.Replace("||1", "<").Replace("||2", ">");
+        // 🧠 Cắt bỏ tag HTML để tránh mô tả bị rác
+        return System.Text.RegularExpressions.Regex.Replace(clean, "<.*?>", string.Empty);
+    }
+}
+@{
+    string imageUrl = Model.Article.IMAGE_URL ?? "";
+    if (!imageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+    {
+        // ép domain cố định
+        imageUrl = $"https://alphadoc.histaff.vn{imageUrl}";
+    }
+}
+@{
+    string raw = IndexModel.DecodeBody(Model.Article.BODY ?? "");
+    string plain = Regex.Replace(raw, "<.*?>", string.Empty);
+    plain = plain.Replace("&nbsp;", " ").Trim();
+
+    // 🧠 Loại bỏ tất cả xuống dòng, tab
+    plain = Regex.Replace(plain, @"\s+", " ");
+
+    if (plain.Length > 200)
+        plain = plain[..200] + "...";
+}
+
+@section Head {
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="AlphaDoc" />
+    <meta property="og:url" content="@($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/Article/{Model.Article.ID}")" />
+    <meta property="og:title" content="@Model.Article.CAPTION" />
+    <meta property="og:description" content="@plain" />
+    <meta property="og:image" content="@imageUrl" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@Model.Article.CAPTION" />
+    <meta name="twitter:description" content="@plain" />
+    <meta name="twitter:image" content="@imageUrl" />
+}
+
+<div class="article-holder">
+
+      <!-- Sticky bar -->
+      <div class="article-stickybar sticky-top bg-body border-bottom shadow-sm py-2 px-2 d-flex gap-2 align-items-center">
+        <button type="button"
+                class="btn btn-outline-secondary"
+                title="Fragments"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#fragmentsOffcanvas"
+                aria-controls="fragmentsOffcanvas">📌</button>
+        <a asp-page="/Index" class="btn btn-outline-secondary" title="Back">⏪</a>
+        <button type="button" class="btn btn-outline-secondary" title="Go to top" onclick="scrollToAnchor('__THE_TOP__')">⬆️</button>
+        <button type="button" class="btn btn-outline-secondary" title="Go to end" onclick="scrollToAnchor('__THE_END__')">⬇️</button>
+        <a asp-page-handler="ExportDocx"
+          asp-route-id="@Model.Article?.ID"
+          class="btn btn-outline-secondary"
+          title="Download as Word">📄</a>
+
+      </div>
+
+      <!-- Top anchor -->
+      <a id="__THE_TOP__"></a>
+
+
+      <div class="container py-4">
+
+
+          <!-- Title + meta -->
+          <h1 class="h2 mb-1">@Model.Article?.CAPTION</h1>
+          <p class="text-muted mb-3">
+              Created @Model.Article?.CREATED_DATE?.ToString("yyyy-MM-dd")
+          </p>
+
+          <!-- Cover image (with fallback on error) -->
+          @if (!string.IsNullOrEmpty(Model.Article?.IMAGE_URL))
+          {
+              <img
+                  src="@Model.Article!.IMAGE_URL"
+                  class="card-img-top mb-3"
+                  style="object-fit: cover; height: 200px;"
+                  alt="Article cover"
+                  onerror="this.onerror=null;this.src='@Model.FallbackImage';" />
+          }
+
+          <!-- Article body (decoded from encoded tokens) -->
+          <div class="article-body mb-4">
+              @Html.Raw(ArticleModel.DecodeBody(Model.Article?.BODY ?? string.Empty))
+          </div>
+
+          <!-- Paragraphs Section -->
+          @if (Model.Paragraphs.Count > 0)
+          {
+              @foreach (var p in Model.Paragraphs.OrderBy(p => p.QUEUE))
+              {
+                  <div class="mb-4">
+                      @* Paragraph image, if any *@
+                      @if (!string.IsNullOrEmpty(p.IMAGE_URL))
+                      {
+                          <img src="@p.IMAGE_URL" class="img-fluid mb-2" alt="Paragraph image" />
+                      }
+
+                      @* Paragraph body (decoded) *@
+                      @if (!string.IsNullOrEmpty(p.BODY))
+                      {
+                          <div class="paragraph">
+                              @Html.Raw(ArticleModel.DecodeBody(p.BODY))
+                          </div>
+                      }
+                  </div>
+
+                  @* Root-only toolbar *@
+                  @if (Model.IsRoot)
+                  {
+                    <div class="mt-0 mb-5">
+                      <partial name="_ParagraphToolbar" model="p.ID" />
+                    </div>
+                  }
+
+              }
+          }
+
+      <!-- Bottom anchor -->
+      <a id="__THE_END__"></a>
+
+      </div>
+
+      @if (Model.FragmentPreviews.Any())
+      {
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="fragmentsOffcanvas" aria-labelledby="fragmentsOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="fragmentsOffcanvasLabel">Fragments</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <ul class="list-unstyled mb-0">
+              @foreach (var frag in Model.FragmentPreviews)
+              {
+                <li class="mb-2">
+                  <a href="#@frag.Id" class="fragment-link" data-bs-dismiss="offcanvas">@frag.Text</a>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      }
+
+  @section Scripts {
+    <script>
+    function scrollToAnchor(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      // measure sticky bar height + a little breathing room
+      const sticky = document.querySelector('.article-stickybar');
+      const offset = (sticky?.offsetHeight || 0) + 8;
+
+      const y = el.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+
+    (function wireOffcanvasAndFragments() {
+      const offEl = document.getElementById('fragmentsOffcanvas');
+      if (!offEl || typeof bootstrap !== 'object') return;
+
+      // Intercept clicks on fragment links
+      offEl.addEventListener('click', (e) => {
+        const a = e.target.closest('a.fragment-link');
+        if (!a) return;
+
+        const href = a.getAttribute('href') || '';
+        if (!href.startsWith('#')) return;
+
+        e.preventDefault();
+        const id = decodeURIComponent(href.slice(1));
+
+        // Start scroll with offset
+        scrollToAnchor(id);
+
+        // Close the offcanvas once
+        const off = bootstrap.Offcanvas.getOrCreateInstance(offEl);
+        // Small delay feels nicer; lets the scroll begin
+        setTimeout(() => off.hide(), 50);
+      });
+
+      // Safety: after hidden, clean any stuck backdrops (rare)
+      offEl.addEventListener('hidden.bs.offcanvas', () => {
+        // remove any lingering backdrop
+        document.querySelectorAll('.offcanvas-backdrop.show')
+          .forEach(node => node.remove());
+        // ensure body is free to scroll
+        document.body.classList.remove('offcanvas-backdrop', 'modal-open');
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('paddingRight');
+      });
+    })();
+
+      // Optional: when offcanvas opens, focus the first link for better a11y
+      document.getElementById('fragmentsOffcanvas')
+        ?.addEventListener('shown.bs.offcanvas', () => {
+          const first = document.querySelector('#fragmentsOffcanvas .fragment-link');
+          first?.focus();
+        });
+    </script>
+  }
+  
+</div>

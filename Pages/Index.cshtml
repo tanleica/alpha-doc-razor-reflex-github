@@ -1,0 +1,61 @@
+@page
+@model MiukaFotoRazor.Pages.IndexModel
+@{
+    ViewData["Title"] = "Pinned Articles";
+}
+
+<div class="show-room">
+
+    <h1 class="mb-4">📰 Pinned Articles</h1>
+    <form method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="keyword" value="@Model.Keyword" class="form-control" placeholder="Search articles..." />
+            <button type="submit" class="btn btn-primary">🔍 Search</button>
+        </div>
+    </form>
+
+    @if (Model.Articles.Count == 0)
+    {
+        <p>No articles yet.</p>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            @foreach (var article in Model.Articles)
+            {
+                <div class="card h-100 shadow-sm pb-2">
+
+                    @if (Model.IsRoot)
+                    {
+                        <div class="card-header bg-transparent border-0 py-2 d-flex gap-3">
+                            <partial name="_ArticleToolbar" model="article!.ID" />
+                        </div>
+                    }
+                    <a asp-page="/Article" asp-route-id="@article.ID" class="text-decoration-none text-dark">
+                        <div class="card h-100 shadow-sm">
+                            @if (!string.IsNullOrEmpty(article.IMAGE_URL))
+                            {
+                                <img 
+                                    src="@article.IMAGE_URL" 
+                                    class="card-img-top" 
+                                    alt="Preview image" 
+                                    style="object-fit: cover; height: 200px;" 
+                                    onerror="this.onerror=null;this.src='@Model.FallbackImage';"
+                                />
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@article.CAPTION</h5>
+                                <p class="card-text truncate-multiline-10 paragraph">
+                                @Html.Raw(IndexModel.DecodeBody(article.BODY ?? ""))
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <small class="text-muted">Created @article.CREATED_DATE?.ToString("yyyy-MM-dd")</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+</div>

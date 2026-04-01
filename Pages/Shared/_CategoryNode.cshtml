@@ -1,0 +1,43 @@
+@using MiukaFotoRazor.Models
+@model MiukaFotoRazor.Models.CategoryTreeNode
+@{
+    var level = ViewData["Level"] is int l ? l : 0;
+    var childId = $"children-{Model.Id}";
+    var iconId = $"icon-{Model.Id}";
+}
+
+<li class="mb-1">
+    <div class="d-flex align-items-center">
+        @if (Model.Children?.Any() == true)
+        {
+            <span id="@iconId"
+                  class="toggle-icon"
+                  style="cursor:pointer;"
+                  data-target="@childId"
+                  data-icon="@iconId">▶</span>
+        }
+        else
+        {
+            <span style="display:inline-block; width:1em;"></span>
+        }
+
+        <a asp-page="/Topic/ArticlesByTopic" asp-route-topicId="@Model.Id"
+           class="ms-2" style="text-decoration: none; color: inherit;">
+            @Model.Name
+        </a>
+    </div>
+
+    @if (Model.Children?.Any() == true)
+    {
+        <ul id="@childId" class="list-unstyled ms-4" style="display:@(level < 1 ? "block" : "none")">
+            @foreach (var child in Model.Children)
+            {
+                @Html.Partial("_CategoryNode", child, new ViewDataDictionary<CategoryTreeNode>(ViewData)
+                {
+                    ["Level"] = level + 1
+                })
+            }
+        </ul>
+    }
+</li>
+

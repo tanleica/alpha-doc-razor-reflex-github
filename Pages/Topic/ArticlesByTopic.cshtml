@@ -1,0 +1,24 @@
+@page "{topicId:long}"
+@model MiukaFotoRazor.Pages.Topic.ArticlesByTopicModel
+@{
+    ViewData["Title"] = "Articles by Topic";
+}
+
+<h2>Articles under: @Model.TopicName</h2>
+
+@if (!Model.Articles.Any())
+{
+    <p>No articles found.</p>
+}
+else
+{
+    <ul>
+    @foreach (var article in Model.Articles)
+    {
+        <li>
+            <a asp-page="/Article" asp-route-id="@article.ID">@article.CAPTION</a>
+        </li>
+    }
+    </ul>
+}
+

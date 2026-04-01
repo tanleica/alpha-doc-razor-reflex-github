@@ -1,0 +1,143 @@
+.article-holder {
+    max-width: 800px;
+}
+
+.paragraph {
+    text-indent: 12px;
+    text-align: left;
+
+    &:has(.number-before),
+    &:has(h2>b),
+    &:has(h3>b),
+    &:has(h4>b),
+    &:has(h5>b),
+    &:has(h6>b) {
+        text-align: left;
+    }
+
+    h1::first-letter,
+    h2::first-letter,
+    div::first-letter,
+    pre::first-letter {
+        font-size: inherit;
+        font-weight: inherit;
+        color: inherit;
+        text-indent: 0px;
+    }
+}
+
+ul.child-paragraphs>li .paragraph {
+    margin-top: 25px;
+}
+
+.paragraph:has(pre>code),
+.paragraph:has(>img),
+.paragraph:has(embed),
+.paragraph:has(>video),
+.paragraph:has(h2>b>a[id]),
+.paragraph:has(h3>b>a[id]),
+.paragraph:has(h4>b>a[id]),
+.paragraph:has(h5>b>a[id]),
+.paragraph:has(h6>b>a[id]),
+.paragraph:has(h7>b>a[id]) {
+    text-indent: 0;
+}
+
+.paragraph:not(:has(*))::first-letter {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: brown;
+    text-indent: 12px !important;
+}
+
+.picture-description {
+    font-size: 15px;
+    color: lightgray;
+    line-height: 1.5em;
+}
+
+ul>li .paragraph:has(.picture-description) {
+    margin-top: 0px;
+}
+
+/*
+icons to represent RxJs diagrams
+*/
+
+.inline-icon {
+    box-sizing: border-box;
+    display: inline-block;
+    position: relative;
+    width: 16px;
+    height: 16px;
+
+    &::before {
+        display: inline-block;
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 0;
+        left: 0;
+        font-family: 'feather';
+        font-size: 16px;
+        line-height: 1em;
+        text-indent: 0;
+        transform: translateY(2px);
+    }
+}
+
+.inline-circle::before {
+    content: "\e937";
+}
+
+.inline-circle::before {
+    border-radius: 50%;
+}
+
+.fill-red::before {
+    background: red;
+}
+
+.fill-green::before {
+    background: lightgreen;
+}
+
+.fill-blue::before {
+    background: blue;
+}
+
+.inline-square::before {
+    content: "\e9d4";
+}
+
+.inline-diamond::before {
+    content: "\e9d4";
+    transform: rotate(45deg);
+}
+
+.number-before {
+    display: block;
+    margin-bottom: 15px;
+}
+
+.number-before::before {
+    content: attr(data-number);
+    color: brown;
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.square-before::before {
+    content: '■';
+}
+
+.number-before>.square-before,
+.square-before>.circle-before {
+    text-indent: 30px;
+}
+
+.square-before>.circle-before::before {
+    content: "●";
+    color: black;
+}

@@ -1,0 +1,33 @@
+@page
+@model MiukaFotoRazor.Pages.Admin.CategoryTreeModel
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@{
+    ViewData["Title"] = "Category Tree";
+}
+
+<h2>🗂️ Category Tree</h2>
+
+<ul class="list-unstyled">
+    @foreach (var node in Model.Tree)
+    {
+        @await Html.PartialAsync("_CategoryNode", node, new ViewDataDictionary(ViewData) { { "Level", 0 } })
+    }
+</ul>
+
+@section Scripts {
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Hide nodes deeper than level 1
+        document.querySelectorAll('[data-visible="false"]').forEach(el => {
+            el.style.display = "none";
+        });
+    });
+
+    function toggleChildren(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.display = (el.style.display === "none") ? "block" : "none";
+        }
+    }
+</script>
+}

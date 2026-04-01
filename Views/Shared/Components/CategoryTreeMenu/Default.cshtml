@@ -1,0 +1,20 @@
+@model List<MiukaFotoRazor.Models.CategoryTreeNode>
+
+<ul class="list-unstyled" style="overflow: auto;">
+    @foreach (var node in Model)
+    {
+        @Html.Partial("_CategoryNode", node, new ViewDataDictionary(ViewData) { { "Level", 0 } })
+    }
+</ul>
+
+<script>
+    function toggleChildren(id, iconId) {
+        const el = document.getElementById(id);
+        const icon = document.getElementById(iconId);
+        if (el) {
+            const isVisible = el.style.display !== "none";
+            el.style.display = isVisible ? "none" : "block";
+            if (icon) icon.textContent = isVisible ? "▶" : "▼";
+        }
+    }
+</script>
